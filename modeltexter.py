@@ -1,6 +1,6 @@
-import os
+import os, csv
+import urllib3
 import boto3
-import pandas as pd
 from twilio.rest import Client
 
 AUTH = os.environ['AUTH']
@@ -41,9 +41,11 @@ def getlast538():
 
 
 def get538():
-    df = pd.read_csv(FIVETHIRTYEIGHT)
-    trump = df['ecwin_inc'][0].round(2) * 100
-    biden = df['ecwin_chal'][0].round(2) * 100
+    http = urllib3.PoolManager()
+    resp = http.request('GET', FIVETHIRTYEIGHT)
+    table = csv.reader(resp.data.decode('utf-8').split('\n'))
+    trump = table[1][7]
+    biden = table[1][8]
     return int(trump), int(biden)
 
 
