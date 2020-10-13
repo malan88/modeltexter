@@ -61,9 +61,9 @@ def proc538():
 
 
 def text(message):
-    message = CLIENT.messages.create(to=TO, from_=PHONE, body=message)
+    success = CLIENT.messages.create(to=TO, from_=PHONE, body=message)
     CLIENT.messages.create(to=TOETHAN, from_=PHONE, body=message)
-    return [message.sid]
+    return [success.sid]
 
 
 def main():
