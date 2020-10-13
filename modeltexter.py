@@ -7,6 +7,7 @@ AUTH = os.environ['AUTH']
 PHONE = os.environ['PHONE']
 SID = os.environ['SID']
 TO = os.environ['TO']
+TOETHAN = os.environ['TOETHAN']
 
 TABLE = 'modeltexter'
 
@@ -43,9 +44,9 @@ def getlast538():
 def get538():
     http = urllib3.PoolManager()
     resp = http.request('GET', FIVETHIRTYEIGHT)
-    table = csv.reader(resp.data.decode('utf-8').split('\n'))
-    trump = table[1][7]
-    biden = table[1][8]
+    table = list(csv.reader(resp.data.decode('utf-8').split('\n')))
+    trump = round(float(table[1][7]), 2) * 100
+    biden = round(float(table[1][8]), 2) * 100
     return int(trump), int(biden)
 
 
@@ -61,6 +62,7 @@ def proc538():
 
 def text(message):
     message = CLIENT.messages.create(to=TO, from_=PHONE, body=message)
+    CLIENT.messages.create(to=TOETHAN, from_=PHONE, body=message)
     return [message.sid]
 
 
