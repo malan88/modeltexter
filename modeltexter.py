@@ -51,7 +51,7 @@ def proc538():
     newtrump, newbiden = get538()
     oldtrump, oldbiden = getlast538()
     message = None
-    if newtrump < oldtrump or newbiden > oldbiden:
+    if newtrump != oldtrump or newbiden != oldbiden:
         message = text(f"{newtrump} - {newbiden}")
         updatetable(newtrump, newbiden)
     return message
