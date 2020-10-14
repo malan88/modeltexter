@@ -6,8 +6,6 @@ from twilio.rest import Client
 AUTH = os.environ['AUTH']
 PHONE = os.environ['PHONE']
 SID = os.environ['SID']
-TO = os.environ['TO']
-TOETHAN = os.environ['TOETHAN']
 
 TABLE = 'modeltexter'
 
@@ -60,10 +58,26 @@ def proc538():
     return message
 
 
+def getnumbers():
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('phone')
+    resp = table.scan()
+    return resp['Items']
+
+
 def text(message):
-    success = CLIENT.messages.create(to=TO, from_=PHONE, body=message)
-    CLIENT.messages.create(to=TOETHAN, from_=PHONE, body=message)
-    return [success.sid]
+    numbers = getnumbers()
+    failures = []
+    successes = []
+    for number in numbers:
+        success = CLIENT.messages.create(to=number['num'],
+                                         from_=PHONE,
+                                         body=message)
+        if not success.sid:
+            failures.append(number)
+        else:
+            successes.append(success.sid)
+    return [failures, successes]
 
 
 def main():
