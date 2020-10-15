@@ -7,7 +7,8 @@ AUTH = os.environ['AUTH']
 PHONE = os.environ['PHONE']
 SID = os.environ['SID']
 
-TABLE = 'modeltexter'
+DATATABLE = 'modeltexter'
+PHONETABLE = 'phone'
 
 CLIENT = Client(SID, AUTH)
 
@@ -15,14 +16,14 @@ FIVETHIRTYEIGHT = 'https://projects.fivethirtyeight.com/'\
     '2020-general-data/presidential_national_toplines_2020.csv'
 
 
-def gettable():
+def gettable(table):
     dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table(TABLE)
+    table = dynamodb.Table(table)
     return table
 
 
 def updatetable(trump, biden):
-    table = gettable()
+    table = gettable(DATATABLE)
     table.update_item(
         Key={'id': '538'},
         UpdateExpression="set Trump=:t, Biden=:b",
@@ -34,7 +35,7 @@ def updatetable(trump, biden):
 
 
 def getlast538():
-    table = gettable()
+    table = gettable(DATATABLE)
     resp = table.get_item(Key={'id': '538'})['Item']
     return float(resp['Trump']), float(resp['Biden'])
 
@@ -43,8 +44,8 @@ def get538():
     http = urllib3.PoolManager()
     resp = http.request('GET', FIVETHIRTYEIGHT)
     table = list(csv.reader(resp.data.decode('utf-8').split('\n')))
-    trump = float(table[1][7]) * 100
-    biden = float(table[1][8]) * 100
+    trump = round(float(table[1][7]) * 100, 2)
+    biden = round(float(table[1][8]) * 100, 2)
     return trump, biden
 
 
@@ -59,8 +60,7 @@ def proc538():
 
 
 def getnumbers():
-    dynamodb = boto3.resource('dynamodb')
-    table = dynamodb.Table('phone')
+    table = gettable(PHONETABLE)
     resp = table.scan()
     return resp['Items']
 
