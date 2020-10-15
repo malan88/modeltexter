@@ -27,8 +27,8 @@ def updatetable(trump, biden):
         Key={'id': '538'},
         UpdateExpression="set Trump=:t, Biden=:b",
         ExpressionAttributeValues={
-            ':t': trump,
-            ':b': biden
+            ':t': str(trump),
+            ':b': str(biden)
         }
     )
 
@@ -36,16 +36,16 @@ def updatetable(trump, biden):
 def getlast538():
     table = gettable()
     resp = table.get_item(Key={'id': '538'})['Item']
-    return int(resp['Trump']), int(resp['Biden'])
+    return float(resp['Trump']), float(resp['Biden'])
 
 
 def get538():
     http = urllib3.PoolManager()
     resp = http.request('GET', FIVETHIRTYEIGHT)
     table = list(csv.reader(resp.data.decode('utf-8').split('\n')))
-    trump = round(float(table[1][7]), 2) * 100
-    biden = round(float(table[1][8]), 2) * 100
-    return int(trump), int(biden)
+    trump = float(table[1][7]) * 100
+    biden = float(table[1][8]) * 100
+    return trump, biden
 
 
 def proc538():
